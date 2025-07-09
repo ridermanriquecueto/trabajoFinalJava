@@ -13,12 +13,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .authorizeHttpRequests()
-                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .httpBasic();
+            .csrf().disable()
+            .authorizeHttpRequests()
+            .requestMatchers(
+                "/api/auth/**",
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/api/lineas/**" // <--- Permitir este endpoint
+            ).permitAll()
+            .anyRequest().authenticated()
+            .and()
+            .httpBasic();
 
         return http.build();
     }
@@ -28,4 +33,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-
