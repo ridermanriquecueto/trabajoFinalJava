@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/productos")
-@CrossOrigin(origins = "*")
+// Asegúrate de que no haya @CrossOrigin aquí
 public class ProductoController {
 
     private final ProductoService service;
@@ -26,11 +26,20 @@ public class ProductoController {
         this.mapper = mapper;
     }
 
+    // Endpoint para listar TODOS los productos
     @GetMapping
     public ResponseEntity<List<ProductoResponse>> listar() {
         List<ProductoResponse> response = service.listar().stream().map(mapper::toDto).toList();
         return ResponseEntity.ok(response);
     }
+
+    // --- ¡NUEVO! Endpoint para obtener un producto por su ID ---
+    @GetMapping("/{id}") // Mapea GET requests a /api/productos/{id}
+    public ResponseEntity<ProductoResponse> obtenerPorId(@PathVariable Long id) {
+        Producto producto = service.obtenerPorId(id); // Asume que ProductoService tiene este método
+        return ResponseEntity.ok(mapper.toDto(producto));
+    }
+    // --------------------------------------------------------
 
     @PostMapping
     public ResponseEntity<ProductoResponse> crear(@RequestBody @Valid ProductoRequest request) {
@@ -39,7 +48,6 @@ public class ProductoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toDto(creado));
     }
     
-
     @PutMapping("/{id}")
     public ResponseEntity<ProductoResponse> actualizar(
             @PathVariable Long id,
@@ -53,5 +61,4 @@ public class ProductoController {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
     }
-
 }

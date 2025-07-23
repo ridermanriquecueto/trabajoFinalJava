@@ -1,75 +1,55 @@
+// Contenido esperado de E:\trabajoFinalJava\src\main\java\com\miTrabajo\service\ProductoService.java
+
 package com.miTrabajo.service;
 
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
-
-import com.miTrabajo.dto.request.ProductoRequest;
-import com.miTrabajo.exception.ResourceNotFoundException;
 import com.miTrabajo.model.Producto;
 import com.miTrabajo.repository.ProductoRepository;
+import com.miTrabajo.dto.request.ProductoRequest; // ¡Asegúrate de que esta importación esté!
+import org.springframework.stereotype.Service;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
 @Service
 public class ProductoService {
 
-    private final ProductoRepository repo;
+    private final ProductoRepository productoRepository;
 
-    public ProductoService(ProductoRepository repo) {
-        this.repo = repo;
+    public ProductoService(ProductoRepository productoRepository) {
+        this.productoRepository = productoRepository;
     }
 
     public List<Producto> listar() {
-        return repo.findAll();
+        return productoRepository.findAll();
     }
 
-    public Producto buscarPorId(Long id) {
-        return repo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
+    public Producto obtenerPorId(Long id) {
+        return productoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + id));
     }
 
     public Producto guardar(Producto producto) {
-        return repo.save(producto);
+        return productoRepository.save(producto);
     }
 
-    public Producto actualizar(Long id, Producto nuevo) {
-        if (nuevo.getPrecio() < 0) {
-            throw new IllegalArgumentException("El precio no puede ser negativo");
-        }
-        if (nuevo.getStock() < 0) {
-            throw new IllegalArgumentException("El stock no puede ser negativo");
-        }
-        Producto p = buscarPorId(id);
-        p.setNombre(nuevo.getNombre());
-        p.setDescripcion(nuevo.getDescripcion());
-        p.setPrecio(nuevo.getPrecio());
-        p.setCategoria(nuevo.getCategoria());
-        p.setImagenUrl(nuevo.getImagenUrl());
-        p.setStock(nuevo.getStock());
-        return repo.save(p);
-    }
-
-
-    @Transactional
     public Producto actualizar(Long id, ProductoRequest request) {
-        Producto existente = repo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
+        Producto productoExistente = productoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + id));
 
-        existente.setNombre(request.getNombre());
-        existente.setDescripcion(request.getDescripcion());
-        existente.setPrecio(request.getPrecio());
-        existente.setStock(request.getStock());
-        existente.setCategoria(request.getCategoria());
-        existente.setImagenUrl(request.getImagenUrl());
+        productoExistente.setNombre(request.getNombre());
+        productoExistente.setDescripcion(request.getDescripcion());
+        productoExistente.setPrecio(request.getPrecio());
+        productoExistente.setCategoria(request.getCategoria());
+        productoExistente.setImagenUrl(request.getImagenUrl());
+        productoExistente.setStock(request.getStock());
 
-        return repo.save(existente);
+        return productoRepository.save(productoExistente);
     }
 
-    @Transactional
     public void eliminar(Long id) {
-        Producto producto = repo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
-        repo.delete(producto);
+        if (!productoRepository.existsById(id)) {
+            throw new EntityNotFoundException("Producto no encontrado con ID: " + id);
+        }
+        productoRepository.deleteById(id);
     }
-
 }

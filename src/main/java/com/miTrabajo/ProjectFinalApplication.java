@@ -2,9 +2,9 @@ package com.miTrabajo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-// import org.springframework.context.annotation.Bean; // Si no usas más @Bean en esta clase, puedes comentar o borrar
-// import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Comentar o borrar
-// import org.springframework.boot.CommandLineRunner; // Comentar o borrar
+import org.springframework.context.annotation.Bean; // Asegúrate de que esta línea NO esté comentada
+import org.springframework.web.servlet.config.annotation.CorsRegistry; // Asegúrate de que esta línea NO esté comentada
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer; // Asegúrate de que esta línea NO esté comentada
 
 @SpringBootApplication
 public class ProjectFinalApplication {
@@ -13,19 +13,20 @@ public class ProjectFinalApplication {
         SpringApplication.run(ProjectFinalApplication.class, args);
     }
 
-    /*
-    // --- ESTE BLOQUE ESTÁ COMENTADO Y YA NO SE EJECUTA ---
     @Bean
-    public CommandLineRunner passwordEncoderGenerator() {
-        return args -> {
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            String rawPassword = "usuario_nuevo";
-            String encodedPassword = encoder.encode(rawPassword);
-            System.out.println("--------------------------------------------------");
-            System.out.println("CONTRASEÑA ENCRIPTADA PARA 'adminpass': " + encodedPassword);
-            System.out.println("--------------------------------------------------");
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        // Aquí es VITAL que incluyas el origen desde donde abres tu HTML.
+                        // Si lo abres directamente, "null" puede funcionar para algunos navegadores.
+                        // Si usas Live Server de VS Code, es http://127.0.0.1:5500 o http://localhost:5500.
+                        .allowedOrigins("null", "http://localhost:3000", "http://127.0.0.1:5500", "http://localhost:5500") 
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
+            }
         };
     }
-    // ----------------------------------------------------------------------
-    */
 }

@@ -18,7 +18,7 @@ import java.util.List;
 public class PedidoService {
 
     private final PedidoRepository pedidoRepo;
-    private final ProductoService productoService;
+    private final ProductoService productoService; // ¡Correcto, ProductoService inyectado!
 
     public PedidoService(PedidoRepository pedidoRepo, ProductoService productoService) {
         this.pedidoRepo = pedidoRepo;
@@ -38,10 +38,12 @@ public class PedidoService {
         }
 
         for (LineaPedido linea : pedido.getLineas()) {
-            // Recuperar el producto gestionado por Hibernate
-            Producto producto = productoService.buscarPorId(linea.getProducto().getId());
+            // --- CORRECCIÓN AQUÍ: Cambiar buscarPorId por obtenerPorId ---
+            // Antes: Producto producto = productoService.buscarPorId(linea.getProducto().getId());
+            // Ahora:
+            Producto producto = productoService.obtenerPorId(linea.getProducto().getId());
 
-            // Asociar la instancia gestionada a la línea
+            // Asociar la instancia gestionada a la línea (esto ya lo estabas haciendo bien)
             linea.setProducto(producto);
 
             // Verificar stock
@@ -49,7 +51,7 @@ public class PedidoService {
                 throw new StockInsuficienteException("Stock insuficiente para el producto: " + producto.getNombre());
             }
         }
-        pedido.setEstado(EstadoPedido.PENDIENTE);
+        pedido.setEstado(EstadoPedido.PENDIENTE); // Esto está bien
         return pedidoRepo.save(pedido);
     }
 
@@ -58,11 +60,14 @@ public class PedidoService {
         Pedido existente = pedidoRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado"));
 
-        existente.getLineas().clear();
+        existente.getLineas().clear(); // Esto está bien
 
         List<LineaPedido> nuevasLineas = request.getLineas().stream()
                 .map(lineaReq -> {
-                    Producto producto = productoService.buscarPorId(lineaReq.getProducto().getId());
+                    // --- CORRECCIÓN AQUÍ: Cambiar buscarPorId por obtenerPorId ---
+                    // Antes: Producto producto = productoService.buscarPorId(lineaReq.getProducto().getId());
+                    // Ahora:
+                    Producto producto = productoService.obtenerPorId(lineaReq.getProducto().getId());
                     LineaPedido linea = new LineaPedido();
                     linea.setProducto(producto);
                     linea.setCantidad(lineaReq.getCantidad());
@@ -82,5 +87,4 @@ public class PedidoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado"));
         pedidoRepo.delete(pedido);
     }
-
 }

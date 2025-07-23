@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión - TECHLAB</title>
+    <link rel="stylesheet" href="css/styles.css"> 
+</head>
+<body>
+    <header>
+        <h1>Sistema de Gestión - TECHLAB</h1>
+    </header>
+
+    <main>
+        <section id="gestion-productos">
+            <h2>Gestión de Productos</h2>
+
+            <div class="card">
+                <h3>Agregar Nuevo Producto</h3>
+                <form id="form-agregar-producto">
+                    <div class="form-group">
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="descripcion">Descripción:</label>
+                        <textarea id="descripcion" name="descripcion"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="precio">Precio:</label>
+                        <input type="number" id="precio" name="precio" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoria">Categoría:</label>
+                        <input type="text" id="categoria" name="categoria">
+                    </div>
+                    <div class="form-group">
+                        <label for="imagenUrl">URL Imagen:</label>
+                        <input type="url" id="imagenUrl" name="imagenUrl">
+                    </div>
+                    <div class="form-group">
+                        <label for="stock">Stock:</label>
+                        <input type="number" id="stock" name="stock" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Agregar Producto</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>Catálogo de Productos</h3>
+                <button id="btnMostrar" class="btn btn-secondary">Recargar Productos</button>
+                <div id="productos-container" class="product-grid">
+                    <p>Cargando productos...</p> 
+                    </div>
+            </div>
+        </section>
+
+        <section id="carrito-compras">
+            <h2>Carrito de Compras</h2>
+            <div class="card">
+                <h3>Productos en el Carrito:</h3>
+                <ul id="carrito-items">
+                    <p>El carrito está vacío.</p>
+                </ul>
+                <p class="total-display">Total: $<span id="carrito-total">0.00</span></p>
+                <button id="btn-crear-pedido" class="btn btn-success">Realizar Pedido</button>
+            </div>
+        </section>
+
+        <section id="historial-pedidos">
+            <h2>Historial de Pedidos</h2>
+            <div class="card">
+                <button id="btn-cargar-historial" class="btn btn-secondary">Cargar Historial de Pedidos</button>
+                <div id="historial-pedidos-container">
+                    <p>Haz clic en "Cargar Historial" para ver tus pedidos anteriores.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="modal-editar-producto" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-edit-modal">&times;</span>
+            <h3>Editar Producto</h3>
+            <form id="form-editar-producto">
+                <input type="hidden" id="edit-productId" name="edit-productId">
+                
+                <div class="form-group">
+                    <label for="edit-nombre">Nombre:</label>
+                    <input type="text" id="edit-nombre" name="edit-nombre" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-descripcion">Descripción:</label>
+                    <textarea id="edit-descripcion" name="edit-descripcion"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-precio">Precio:</label>
+                    <input type="number" id="edit-precio" name="edit-precio" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-categoria">Categoría:</label>
+                    <input type="text" id="edit-categoria" name="edit-categoria">
+                </div>
+                <div class="form-group">
+                    <label for="edit-imagenUrl">URL Imagen:</label>
+                    <input type="url" id="edit-imagenUrl" name="edit-imagenUrl">
+                </div>
+                <div class="form-group">
+                    <label for="edit-stock">Stock:</label>
+                    <input type="number" id="edit-stock" name="edit-stock" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                <button type="button" id="cancel-edit-modal" class="btn btn-cancel">Cancelar</button> 
+            </form>
+        </div>
+    </div>
+
+    <script src="js/scripts.js"></script>
+</body>
+</html>
