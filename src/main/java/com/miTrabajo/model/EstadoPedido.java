@@ -1,6 +1,10 @@
+// src/main/java/com/miTrabajo/model/EstadoPedido.java
 package com.miTrabajo.model;
 
 public enum EstadoPedido {
-
-    PENDIENTE, EN_PROCESO, ENTREGADO, CANCELADO
+    PENDIENTE,
+    CONFIRMADO,
+    ENVIADO,
+    ENTREGADO,
+    CANCELADO
 }

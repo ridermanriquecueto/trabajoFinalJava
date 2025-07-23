@@ -1,15 +1,20 @@
+// src/main/java/com/miTrabajo/config/PedidoMapper.java
 package com.miTrabajo.config;
 
 import org.mapstruct.Mapper;
-
-import com.miTrabajo.dto.request.PedidoRequest;
-import com.miTrabajo.dto.response.PedidoResponse;
+import org.mapstruct.Mapping;
+import com.miTrabajo.dto.PedidoDTO;
+import com.miTrabajo.dto.request.PedidoRequest; // Importa PedidoRequest si es necesario para otros mapeos
 import com.miTrabajo.model.Pedido;
 
-@Mapper(componentModel = "spring")
+import java.util.List;
+
+@Mapper(componentModel = "spring", uses = {LineaPedidoMapper.class})
 public interface PedidoMapper {
 
-    PedidoResponse toDto(Pedido pedido);
+    @Mapping(target = "total", expression = "java(pedido.getTotal())")
+    PedidoDTO toDto(Pedido pedido);
+    List<PedidoDTO> toDtoList(List<Pedido> pedidos);
 
-    Pedido toEntity(PedidoRequest request);
+    // No se necesita toEntity(PedidoRequest) aquí, el servicio lo construirá
 }

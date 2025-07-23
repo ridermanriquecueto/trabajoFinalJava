@@ -1,6 +1,5 @@
 const API_BASE_URL = 'http://localhost:8080/api';
 
-// --- Funciones de Carga y Visualización de Productos ---
 function cargarProductos() {
     fetch(`${API_BASE_URL}/productos`)
         .then(response => {
@@ -18,7 +17,7 @@ function cargarProductos() {
                 console.error("El elemento 'productos-container' no se encontró en el DOM.");
                 return;
             }
-            contenedor.innerHTML = ''; // Limpiar contenido previo
+            contenedor.innerHTML = '';
 
             if (productos.length === 0) {
                 contenedor.innerHTML = '<p>No hay productos disponibles para mostrar.</p>';
@@ -47,7 +46,7 @@ function cargarProductos() {
                 `;
                 contenedor.appendChild(div);
             });
-            attachProductActionListeners(); // Volver a adjuntar listeners para los nuevos botones
+            attachProductActionListeners();
         })
         .catch(err => {
             const contenedor = document.getElementById('productos-container');
@@ -59,7 +58,6 @@ function cargarProductos() {
         });
 }
 
-// --- Adjunta listeners a los botones de acción de productos (agregar, editar, eliminar) ---
 function attachProductActionListeners() {
     document.querySelectorAll('.btn-agregar-carrito').forEach(button => {
         button.addEventListener('click', (event) => {
@@ -87,11 +85,8 @@ function attachProductActionListeners() {
     });
 }
 
-// --- Funciones CRUD de Productos (Agregar, Editar, Eliminar) ---
-
-// Función para agregar un nuevo producto
 function agregarProducto(event) {
-    event.preventDefault(); // Prevenir el envío por defecto del formulario
+    event.preventDefault();
 
     const form = document.getElementById('form-agregar-producto');
     if (!form) return;
@@ -123,8 +118,8 @@ function agregarProducto(event) {
     })
     .then(data => {
         alert('Producto agregado correctamente!');
-        form.reset(); // Limpiar formulario
-        cargarProductos(); // Recargar la lista de productos
+        form.reset();
+        cargarProductos();
     })
     .catch(error => {
         console.error('Error al agregar producto:', error);
@@ -132,7 +127,6 @@ function agregarProducto(event) {
     });
 }
 
-// Función para eliminar un producto
 function eliminarProducto(productId) {
     fetch(`${API_BASE_URL}/productos/${productId}`, {
         method: 'DELETE'
@@ -145,7 +139,7 @@ function eliminarProducto(productId) {
             });
         }
         alert('Producto eliminado correctamente!');
-        cargarProductos(); // Recargar la lista
+        cargarProductos();
     })
     .catch(error => {
         console.error('Error al eliminar producto:', error);
@@ -153,9 +147,6 @@ function eliminarProducto(productId) {
     });
 }
 
-// Función para obtener datos de un producto para edición
-// ESTA FUNCIÓN ESTABA CAUSANDO EL PROBLEMA DEL GET, YA QUE NO TENÍAS EL ENDPOINT EN EL BACKEND
-// Ahora que lo añadimos con @GetMapping("/{id}"), esto funcionará.
 function obtenerProductoParaEditar(productId) {
     fetch(`${API_BASE_URL}/productos/${productId}`)
         .then(response => {
@@ -168,7 +159,6 @@ function obtenerProductoParaEditar(productId) {
             return response.json();
         })
         .then(producto => {
-            // Rellenar el formulario del modal de edición
             document.getElementById('edit-productId').value = producto.id;
             document.getElementById('edit-nombre').value = producto.nombre;
             document.getElementById('edit-descripcion').value = producto.descripcion;
@@ -177,7 +167,6 @@ function obtenerProductoParaEditar(productId) {
             document.getElementById('edit-imagenUrl').value = producto.imagenUrl;
             document.getElementById('edit-stock').value = producto.stock;
 
-            // Mostrar el modal
             const modal = document.getElementById('modal-editar-producto');
             if (modal) modal.style.display = 'block';
         })
@@ -187,7 +176,6 @@ function obtenerProductoParaEditar(productId) {
         });
 }
 
-// Función para actualizar un producto existente
 function actualizarProducto(event) {
     event.preventDefault();
 
@@ -197,8 +185,6 @@ function actualizarProducto(event) {
     const productId = parseInt(form.elements['edit-productId'].value, 10);
 
     const productoActualizado = {
-        // No incluyas el 'id' si tu backend lo toma del @PathVariable
-        // id: productId, 
         nombre: form.elements['edit-nombre'].value,
         descripcion: form.elements['edit-descripcion'].value,
         precio: parseFloat(form.elements['edit-precio'].value),
@@ -226,8 +212,8 @@ function actualizarProducto(event) {
     .then(data => {
         alert('Producto actualizado correctamente!');
         const modal = document.getElementById('modal-editar-producto');
-        if (modal) modal.style.display = 'none'; // Ocultar modal
-        cargarProductos(); // Recargar la lista de productos
+        if (modal) modal.style.display = 'none';
+        cargarProductos();
     })
     .catch(error => {
         console.error('Error al actualizar producto:', error);
@@ -235,7 +221,6 @@ function actualizarProducto(event) {
     });
 }
 
-// --- Lógica del carrito de compras ---
 let carrito = [];
 
 function agregarAlCarrito(productId, productName, price) {
@@ -291,25 +276,19 @@ function actualizarVistaCarrito() {
     carritoTotalSpan.textContent = total.toFixed(2);
 }
 
-// --- Funciones de Pedidos (Crear y Cargar Historial) ---
-
-// Función para crear un pedido
 function crearPedido() {
     if (carrito.length === 0) {
         alert('El carrito está vacío. Agrega productos antes de realizar un pedido.');
         return;
     }
 
-    const userId = 1; // Asumiendo un userId fijo por ahora, puedes cambiarlo según tu lógica de usuario
-
-    const lineaPedidosDTO = carrito.map(item => ({
-        productoId: item.productoId,
+    const lineas = carrito.map(item => ({
+        producto: {id: item.productoId}, // Modificado para LineaPedidoRequest.ProductoRequestId
         cantidad: item.cantidad
     }));
 
     const pedidoRequest = {
-        userId: userId,
-        lineaPedidos: lineaPedidosDTO
+        lineas: lineas
     };
 
     fetch(`${API_BASE_URL}/pedidos`, {
@@ -330,9 +309,9 @@ function crearPedido() {
     })
     .then(data => {
         alert(`¡Pedido realizado correctamente! ID del pedido: ${data.id}. Revisa el historial.`);
-        carrito = []; // Vaciar carrito
-        actualizarVistaCarrito(); // Actualizar vista del carrito
-        cargarProductos(); // Recargar productos (por si cambió el stock)
+        carrito = [];
+        actualizarVistaCarrito();
+        cargarProductos();
     })
     .catch(error => {
         console.error('Error al crear pedido:', error);
@@ -340,9 +319,7 @@ function crearPedido() {
     });
 }
 
-// Función para cargar el historial de pedidos
 function cargarHistorialPedidos() {
-    const userId = 1; // Asumiendo un userId fijo
     const historialContainer = document.getElementById('historial-pedidos-container');
 
     if (!historialContainer) {
@@ -352,7 +329,9 @@ function cargarHistorialPedidos() {
 
     historialContainer.innerHTML = '<p>Cargando historial de pedidos...</p>';
 
-    fetch(`${API_BASE_URL}/usuarios/${userId}/pedidos`)
+    // Nota: El backend actualmente devuelve *todos* los pedidos. Si necesitas pedidos por usuario,
+    // el backend requeriría un endpoint específico como /api/usuarios/{userId}/pedidos.
+    fetch(`${API_BASE_URL}/pedidos`)
         .then(response => {
             if (!response.ok) {
                 return response.json().then(errorData => {
@@ -363,10 +342,10 @@ function cargarHistorialPedidos() {
             return response.json();
         })
         .then(pedidos => {
-            historialContainer.innerHTML = ''; // Limpiar contenido previo
+            historialContainer.innerHTML = '';
 
             if (pedidos.length === 0) {
-                historialContainer.innerHTML = '<p>No hay pedidos en el historial para este usuario.</p>';
+                historialContainer.innerHTML = '<p>No hay pedidos en el historial.</p>';
                 return;
             }
 
@@ -375,17 +354,17 @@ function cargarHistorialPedidos() {
                 div.classList.add('pedido-historial-item');
 
                 let productosEnPedidoHtml = '<ul>';
-                if (pedido.lineaPedidos && Array.isArray(pedido.lineaPedidos)) {
-                    pedido.lineaPedidos.forEach(linea => {
+                if (pedido.lineas && Array.isArray(pedido.lineas)) {
+                    pedido.lineas.forEach(linea => {
                         productosEnPedidoHtml += `<li>${linea.nombreProducto || 'Producto Desconocido'} x ${linea.cantidad} ($${linea.precioUnitario ? linea.precioUnitario.toFixed(2) : 'N/A'} c/u)</li>`;
                     });
                 }
                 productosEnPedidoHtml += '</ul>';
 
                 div.innerHTML = `
-                    <h4>Pedido #${pedido.id} - Fecha: ${new Date(pedido.fechaPedido).toLocaleString()}</h4>
+                    <h4>Pedido #${pedido.id} - Fecha: ${new Date(pedido.fecha).toLocaleString()}</h4>
                     <p>Estado: <strong>${pedido.estado || 'N/A'}</strong></p>
-                    <p>Costo Total: <strong>$${pedido.costoTotal ? pedido.costoTotal.toFixed(2) : 'N/A'}</strong></p>
+                    <p>Costo Total: <strong>$${pedido.total ? pedido.total.toFixed(2) : 'N/A'}</strong></p>
                     <p>Productos:</p>
                     ${productosEnPedidoHtml}
                 `;
@@ -399,28 +378,22 @@ function cargarHistorialPedidos() {
         });
 }
 
-// --- Event Listeners principales que se activan cuando el DOM está completamente cargado ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Cargar productos automáticamente al cargar la página
     cargarProductos();
 
-    // Evento para el botón de recargar productos (si aún lo necesitas además de la carga automática)
-    const btnMostrar = document.getElementById('btnMostrar'); // Asumiendo que 'Recargar Productos' tiene el ID 'btnMostrar'
+    const btnMostrar = document.getElementById('btnMostrar');
     if (btnMostrar) {
         btnMostrar.addEventListener('click', cargarProductos);
     }
 
-    // Evento para el formulario de agregar producto
     const formAgregarProducto = document.getElementById('form-agregar-producto');
     if (formAgregarProducto) {
         formAgregarProducto.addEventListener('submit', agregarProducto);
     }
 
-    // Eventos para el formulario de editar producto y botones del modal
     const formEditarProducto = document.getElementById('form-editar-producto');
     if (formEditarProducto) {
         formEditarProducto.addEventListener('submit', actualizarProducto);
-        // Cerrar modal al hacer clic en 'X'
         const closeEditModalBtn = document.getElementById('close-edit-modal');
         if (closeEditModalBtn) {
             closeEditModalBtn.addEventListener('click', () => {
@@ -428,7 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (modal) modal.style.display = 'none';
             });
         }
-        // Cerrar modal al hacer clic en 'Cancelar'
         const cancelEditModalBtn = document.getElementById('cancel-edit-modal');
         if (cancelEditModalBtn) {
             cancelEditModalBtn.addEventListener('click', () => {
@@ -438,13 +410,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Evento para el botón de crear pedido
     const btnCrearPedido = document.getElementById('btn-crear-pedido');
     if (btnCrearPedido) {
         btnCrearPedido.addEventListener('click', crearPedido);
     }
 
-    // Evento para el botón de cargar historial de pedidos
     const btnCargarHistorial = document.getElementById('btn-cargar-historial');
     if (btnCargarHistorial) {
         btnCargarHistorial.addEventListener('click', cargarHistorialPedidos);
